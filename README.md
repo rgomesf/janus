@@ -1,3 +1,7 @@
 # janus
 
-Using sample data from https://github.com/krlawrence/graph
+Dockerfile with janusgraph + graphexp + apache2 + sample data 
+
+Thanks to:
+https://github.com/bricaud/graphexp
+https://github.com/krlawrence/graph
