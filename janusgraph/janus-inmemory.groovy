@@ -156,7 +156,7 @@ mgmt.commit()
 println "\n========================";[]
 println "Loading air-routes graph";[]
 println "========================\n";[]
-graph.io(graphml()).readGraph('air-routes-small.graphml')
+graph.io(graphml()).readGraph('/work/janusgraph/scripts/air-routes-small.graphml')
 graph.tx().commit();[]
 
 // Setup our traversal source object
@@ -184,5 +184,5 @@ types = mgmt.getRelationTypes(PropertyKey.class);[]
 types.each{println "$it\t: " + mgmt.getPropertyKey("$it").dataType() + " " + mgmt.getPropertyKey("$it").cardinality()};[]
 mgmt.commit()   
 
-
-
+def globals = [:]
+globals << [g : graph.traversal()]

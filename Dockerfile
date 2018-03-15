@@ -11,8 +11,15 @@ RUN apt-get update && \
     rm janusgraph-$version-hadoop2.zip && \
     mv janusgraph-* janusgraph
 
+#COPY janusgraph-0.2.0-hadoop2.zip /work/janusgraph-0.2.0-hadoop2.zip
+
+#RUN cd /work && \
+#    unzip janusgraph-0.2.0-hadoop2.zip && \
+#    rm janusgraph-0.2.0-hadoop2.zip && \
+#    mv janusgraph-* janusgraph
+
+COPY janusgraph/memory.properties /work/janusgraph/conf/memory.properties
 COPY janusgraph/gremlin-server.yaml /work/janusgraph/conf/gremlin-server/gremlin-server.yaml
-COPY janusgraph/janusgraph.properties /work/janusgraph/janusgraph.properties
 COPY janusgraph/empty-sample.groovy /work/janusgraph/scripts/empty-sample.groovy
 COPY janusgraph/air-routes-small.graphml /work/janusgraph/scripts/air-routes-small.graphml
 COPY janusgraph/janus-inmemory.groovy /work/janusgraph/scripts/janus-inmemory.groovy
@@ -20,13 +27,15 @@ COPY janusgraph/run.sh /work/janusgraph/run.sh
 
 RUN apt-get -y install apache2
 
-RUN git clone https://github.com/rgomesf/graphexp.git /var/www/html
+RUN cd /var/www/html && \ 
+    git clone https://github.com/rgomesf/graphexp.git
 
 WORKDIR /work/janusgraph
 
-RUN bin/gremlin-server.sh -i org.janusgraph janusgraph-all $version
-
 EXPOSE 80
 EXPOSE 443
+EXPOSE 8182
 
-ENTRYPOINT ["run.sh"]
+RUN ["chmod", "+x", "/work/janusgraph/run.sh"]
+
+ENTRYPOINT ["sh", "/work/janusgraph/run.sh"]

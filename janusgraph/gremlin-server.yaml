@@ -6,7 +6,7 @@ scriptEvaluationTimeout: 60000
 serializedResponseTimeout: 60000
 channelizer: org.apache.tinkerpop.gremlin.server.channel.WebSocketChannelizer
 graphs: {
-  graph: janusgraph.properties
+  graph: conf/memory.properties
 }
 plugins:
   - janusgraph.imports
@@ -15,7 +15,7 @@ scriptEngines: {
     imports: [java.lang.Math],
     staticImports: [java.lang.Math.PI],
     scripts: [scripts/empty-sample.groovy,scripts/janus-inmemory.groovy]},
-  gremlin-python: {}}
+}
 serializers:
   - { className: org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0, config: { useMapperFromGraph: graph }}
   - { className: org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0, config: { serializeResultToString: true }}
