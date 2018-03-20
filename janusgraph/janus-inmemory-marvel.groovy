@@ -91,7 +91,7 @@ mgmt.commit()
 // Load the air-routes graph and display a few statistics.
 // Not all of these steps use the index so Janus Graph will give us some warnings.
 println "\n========================";[]
-println "Loading air-routes graph";[]
+println "Loading marvel movies graph";[]
 println "========================\n";[]
 graph.io(graphml()).readGraph('/work/janusgraph/scripts/marvel_movie_graph.graphml')
 graph.tx().commit();[]
@@ -122,4 +122,4 @@ types.each{println "$it\t: " + mgmt.getPropertyKey("$it").dataType() + " " + mgm
 mgmt.commit()   
 
 def globals = [:]
-globals << [m : graph.traversal()]
+globals << [g : graph.traversal()]
