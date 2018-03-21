@@ -14,7 +14,7 @@ scriptEngines: {
   gremlin-groovy: {
     imports: [java.lang.Math],
     staticImports: [java.lang.Math.PI],
-    scripts: [scripts/empty-sample.groovy,scripts/janus-inmemory.groovy,scripts/janus-inmemory-events.groovy]},
+    scripts: [scripts/empty-sample.groovy,scripts/janus-inmemory-marvel.groovy,scripts/janus-inmemory-events.groovy]},
 }
 serializers:
   - { className: org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0, config: { useMapperFromGraph: graph }}
