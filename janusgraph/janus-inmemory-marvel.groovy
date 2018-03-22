@@ -36,8 +36,9 @@ mgmt.commit()
 
 // Define edge property keys
 //mgmt = graph.openManagement()
-//mgmt.makePropertyKey('labelE').dataType(Integer.class).cardinality(Cardinality.SINGLE).make()
+//mgmt.makePropertyKey('labelE').dataType(String.class).cardinality(Cardinality.MULTI).make()
 //mgmt.commit()
+
 
 println "\n==============";[]
 println "Building index";[]
