@@ -1,29 +1,21 @@
-println "\n=======================================";[]
-println "Creating in-memory Janus Graph instance";[]
-println "=======================================\n";[]
-// Create a new graph instance
+// Criar um novo graph em memoria
 graph = JanusGraphFactory.open('inmemory')
 
-println "\n===============";[]
-println "Defining labels";[]
-println "===============\n";[]
-// Define edge labels and usage
+//Definir o schema. Não é obrigatorio, nas evita que o janusGraph ponha todas a propriedades como Object.clas
+
+// Definir as labels dos edges, que têm que ser unicas em todo o graph.
 mgmt = graph.openManagement()
-mgmt.makeEdgeLabel('ACTS_IN').multiplicity(MULTI).make()
-mgmt.makeEdgeLabel('DIRECTS').multiplicity(SIMPLE).make()
+mgmt.makeEdgeLabel('ACTS_IN').multiplicity(MULTI).make() //uma pessoa pode entrar em varios filmes
+mgmt.makeEdgeLabel('DIRECTS').multiplicity(MULTI).make()
 mgmt.commit()
 
-// Define vertex labels
+// Definir as labels dos nodes (vertex)
 mgmt = graph.openManagement()
 mgmt.makeVertexLabel('movie').make()
 mgmt.makeVertexLabel('person').make()
-
 mgmt.commit()
 
-println "\n=============";[]
-println "Creating keys";[]
-println "=============\n";[]
-// Define vertex property keys
+// Definir as propriedados dos nodes
 mgmt = graph.openManagement()
 mgmt.makePropertyKey('name').dataType(String.class).cardinality(Cardinality.SINGLE).make()
 mgmt.makePropertyKey('type').dataType(String.class).cardinality(Cardinality.SINGLE).make()
@@ -32,27 +24,14 @@ mgmt.makePropertyKey('runtime').dataType(Integer.class).cardinality(Cardinality.
 mgmt.makePropertyKey('year').dataType(Integer.class).cardinality(Cardinality.SINGLE).make()
 mgmt.commit()
 
-// Define edge property keys
+// Define também as propriedades para os edges, neste caso só temos uma 
 mgmt = graph.openManagement()
 mgmt.makePropertyKey('character').dataType(String.class).cardinality(Cardinality.SINGLE).make()
-mgmt.makePropertyKey('labelE').dataType(String.class).cardinality(Cardinality.SINGLE).make()
 mgmt.commit()
 
+// JanusGraph suporta graph indexes e vertex indexes (http://docs.janusgraph.org/latest/indexes.html)
+// Vamos só criar alguns indices compostos como exemplo de como tornar mais rapidas as pesquisas por valores exatos
 
-// Look at the properties
-mgmt = graph.openManagement()
-types = mgmt.getRelationTypes(PropertyKey.class)
-types.each{println "$it\t: " +
-                    mgmt.getPropertyKey("$it").dataType() +
-                    " " + mgmt.getPropertyKey("$it").cardinality()}
-
-mgmt.commit()
-
-println "\n==============";[]
-println "Building index";[]
-println "==============\n";[]
-
-// Construct a composite index for a few commonly used property keys
 graph.tx().rollback()
 mgmt=graph.openManagement()
 
@@ -73,11 +52,7 @@ idx4.addKey(ichar).buildCompositeIndex()
 
 mgmt.commit()
 
-
-println "\n=================================";[]
-println "Waiting for the index to be ready";[]
-println "=================================\n";[]
-
+// Apos a criação dos indices, temos que esperar que eles estejam prontos
 mgmt.awaitGraphIndexStatus(graph, 'nameIndex').
      status(SchemaStatus.REGISTERED).call()
 
@@ -90,18 +65,14 @@ mgmt.awaitGraphIndexStatus(graph, 'yearIndex').
 mgmt.awaitGraphIndexStatus(graph, 'characterIndex').
      status(SchemaStatus.REGISTERED).call()
 
-// Load the Marvel Movies 2 graph and display a few statistics.
-// Not all of these steps use the index so Janus Graph will give us some warnings.
-println "\n============================";[]
-println "Loading marvel movies graph 2";[]
-println "============================\n";[]
+
+// Chegou a altura de carregar o nosso graphml
+// Nota: Não é garantido que o JanusGraph use os ids que estão no graphml. Normalmente ele gera novos ao inserir os nodes e edges. 
 graph.io(graphml()).readGraph('/work/janusgraph/scripts/marvel_movie_graph2.graphml')
 graph.tx().commit();[]
 
-// Setup our traversal source object
+// E já podemos mostrar já algumas estatísticas do graph que acabamos de carregar
 g = graph.traversal()
-
-// Display a few statistics
 mov = g.V().has('type','movie').count().next();[]
 per = g.V().has('type','person').count().next();[]
 cha = g.E().has('character').count().next();[]
@@ -112,5 +83,7 @@ println "Persons     : $per";[]
 println "Characters  : $cha";[]
 println "Edges       : $edg";[]
 
+
+// Por último definimps TraversalSource do graph para o g, para podermos fazer as nossas queries.
 def globals = [:]
 globals << [g : graph.traversal()]
