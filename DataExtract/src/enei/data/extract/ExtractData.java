@@ -377,6 +377,7 @@ public class ExtractData {
 					sb = new StringBuffer();
 					sb.append(new String(Files.readAllBytes(Paths.get("edges2.graph"))));
 					connectGremlinServer(sb.toString());
+					break;
 				case "both":
 					writeGraph();
 					sb = new StringBuffer();
@@ -397,6 +398,7 @@ public class ExtractData {
 					sb = new StringBuffer();
 					sb.append(new String(Files.readAllBytes(Paths.get("edges2.graph"))));
 					connectGremlinServer(sb.toString());
+					break;
 				default:
 					System.out.println("Options are:");
 					System.out.println("\treaddb -> read from DB and generate graph files");
