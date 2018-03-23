@@ -26,19 +26,17 @@ RUN cd /var/www/html && \
 
 WORKDIR /work/janusgraph
 
+COPY janusgraph/graphConf.js /var/www/html/graphexp/scripts/graphConf.js
 COPY janusgraph/memory.properties /work/janusgraph/conf/memory.properties
 COPY janusgraph/gremlin-server.yaml /work/janusgraph/conf/gremlin-server/gremlin-server.yaml
-COPY janusgraph/empty-sample.groovy /work/janusgraph/scripts/empty-sample.groovy
-COPY janusgraph/air-routes-small.graphml /work/janusgraph/scripts/air-routes-small.graphml
-COPY janusgraph/marvel_movie_graph.graphml /work/janusgraph/scripts/marvel_movie_graph.graphml
-COPY janusgraph/marvel_movie_graph2.graphml /work/janusgraph/scripts/marvel_movie_graph2.graphml
-COPY janusgraph/events.graphml /work/janusgraph/scripts/events.graphml
-COPY janusgraph/janus-inmemory.groovy /work/janusgraph/scripts/janus-inmemory.groovy
+
+COPY janusgraph/graphml/marvel.graphml /work/janusgraph/graphml/marvel.graphml
+COPY janusgraph/graphml/events.graphml /work/janusgraph/graphml/events.graphml
+
 COPY janusgraph/janus-inmemory-marvel.groovy /work/janusgraph/scripts/janus-inmemory-marvel.groovy
-COPY janusgraph/janus-inmemory-marvel2.groovy /work/janusgraph/scripts/janus-inmemory-marvel2.groovy
 COPY janusgraph/janus-inmemory-events.groovy /work/janusgraph/scripts/janus-inmemory-events.groovy
+
 COPY janusgraph/run.sh /work/janusgraph/run.sh
-COPY janusgraph/graphConf.js /var/www/html/graphexp/scripts/graphConf.js
 
 EXPOSE 80
 EXPOSE 443

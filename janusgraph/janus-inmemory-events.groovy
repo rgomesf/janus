@@ -13,7 +13,7 @@ graph = JanusGraphFactory.open('inmemory')
 println "\n========================";[]
 println "Loading Events graph";[]
 println "========================\n";[]
-graph.io(graphml()).readGraph('/work/janusgraph/scripts/events.graphml')
+graph.io(graphml()).readGraph('/work/janusgraph/graphml/events.graphml')
 graph.tx().commit();[]
 
 
