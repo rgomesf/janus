@@ -1,2 +1,6 @@
 DataExtract/.gitignore
-
+DataExtract/edges1.graph
+DataExtract/edges2.graph
+DataExtract/events.graphml
+DataExtract/vertices1.graph
+DataExtract/vertices2.graph
