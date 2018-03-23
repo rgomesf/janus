@@ -1,4 +1,4 @@
-hosts: [pmpires]
+hosts: [localhost]
 port: 8182
 connectionPool: {
   maxContentLength: 20480000 }
