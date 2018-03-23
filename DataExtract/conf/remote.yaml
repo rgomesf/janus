@@ -1,0 +1,5 @@
+hosts: [pmpires]
+port: 8182
+connectionPool: {
+  maxContentLength: 20480000 }
+serializer: { className: org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0, config: { serializeResultToString: true }}
