@@ -21,6 +21,7 @@ graph = JanusGraphFactory.open('inmemory')
 // Nota: Não é garantido que o JanusGraph use os ids que estão no graphml. Normalmente ele gera novos ao inserir os nodes e edges. 
 
 // E já podemos mostrar já algumas estatísticas do graph que acabamos de carregar
+g = graph.traversal()
 
 // Por último definimos o TraversalSource do graph para o g, para podermos fazer as nossas queries na Gremlin console.
 def globals = [:]
