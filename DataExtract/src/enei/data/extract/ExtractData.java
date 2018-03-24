@@ -71,7 +71,7 @@ public class ExtractData {
 		try (JanusGraph graph = JanusGraphFactory.open("inmemory");
 				Connection conn = ConnectionManager.getConnection(connUrl, "postgres", "postgres");
 				PreparedStatement pStm = conn.prepareStatement(
-						"select ev.*,(select shdesc from TRAFFIC_TYPE where traffic_type_id=ev.traffic_type_id) as traffic_type_name ,(select count(1) from HIGHRISK_LIST where value=ev.ENTITY_ID) inRiskList ,(SELECT count(1) FROM ALARMS where replace(ENTITY_ID,ev.COMPANY_ID||'_','') = ev.ENTITY_ID) asAlarms from events ev where company_id=505 and EVENT_TYPE_ID in (1,2) and EVENT_START_DATE BETWEEN TO_DATE('20/03/2018', 'DD/MM/YYYY') AND TO_DATE('21/03/2018', 'DD/MM/YYYY')",
+						"select ev.*,(select shdesc from TRAFFIC_TYPE where traffic_type_id=ev.traffic_type_id) as traffic_type_name from events ev where company_id=505 and EVENT_TYPE_ID in (1,2) and EVENT_START_DATE BETWEEN TO_DATE('20/03/2018', 'DD/MM/YYYY') AND TO_DATE('21/03/2018', 'DD/MM/YYYY')",
 						ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);) {
 
 			// commented: unnecessary initialization - janus server already initializes the variable 'graph' with a janusgraph
@@ -131,14 +131,9 @@ public class ExtractData {
 				if (trafficType == null) {
 					trafficType = "";
 				}
-				String inRiskList = rs.getString("INRISKLIST");
-				String asAlrms = rs.getString("ASALARMS");
 				// create vertices
-				// Vertex vrtEntity = tx.addVertex(T.label, "entity" + entityID, "type", "entity", ENTITYID, entityID, ANUMBER, anumber, BNUMBER,
-				// bnumber, EVENT_DIRECTION, eventDirection, EVT_START_DATE,
-				// evntStartDate, CELL_ID, cellID, IMSI, imsi, IMEI, imei);
 				Vertex vrtEntity = tx.addVertex(T.label, "entity" + entityID, "type", "entity", ENTITYID, entityID, ANUMBER, anumber, BNUMBER, bnumber, EVENT_DIRECTION, eventDirection, EVT_START_DATE,
-						evntStartDate, CELL_ID, cellID, IMSI, imsi, IMEI, imei, TRAFFICTYPENAME, trafficType, INRISKLIST, inRiskList, HASALARMS, asAlrms);
+						evntStartDate, CELL_ID, cellID, IMSI, imsi, IMEI, imei, TRAFFICTYPENAME, trafficType);
 
 				sbVert.append("vrtEntity = " + graphName + ".addVertex(T.label, \"entity" + entityID + "\",");
 				sbVert.append("\"type\", \"entity\",");
@@ -150,9 +145,7 @@ public class ExtractData {
 				sbVert.append("\"" + CELL_ID + "\",\"" + cellID + "\",");
 				sbVert.append("\"" + IMSI + "\",\"" + imsi + "\",");
 				sbVert.append("\"" + IMEI + "\",\"" + imsi + "\",");
-				sbVert.append("\"" + TRAFFICTYPENAME + "\",\"" + trafficType + "\",");
-				sbVert.append("\"" + INRISKLIST + "\",\"" + inRiskList + "\",");
-				sbVert.append("\"" + HASALARMS + "\",\"" + asAlrms + "\")");
+				sbVert.append("\"" + TRAFFICTYPENAME + "\",\"" + trafficType + "\")");
 				sbVert.append("\n");
 
 				// create CELL vertex
@@ -219,7 +212,7 @@ public class ExtractData {
 					fileNum++;
 				}
 			}
-			System.out.println("Readed " + count + " from Database.");
+			System.out.println("Rows " + count + " read from Database.");
 			long e = System.currentTimeMillis();
 			System.out.println("Created vertices in " + (e - s) + "ms.");
 			System.out.println("--------------------------");
