@@ -18,6 +18,14 @@ After writing graph in Gremlin Server + JanusGraph it will be something very sim
 ![alt text](https://github.com/rgomesf/janus/blob/master/DataExtract/assets/graphfish.png "Graph fish")
 
 
+#### Get graph using [graphexp](https://github.com/rgomesf/janus/blob/master/janusgraph)
+
+Using advanced mode write this in the text area:
+> nodes = graph.traversal().V() <br>
+> edges = graph.traversal().E() <br>
+> [nodes.toList(), edges.toList()] <br>
+
+
 #### Pre-requisites
 
 To import a Graph is required that:
