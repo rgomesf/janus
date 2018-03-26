@@ -35,10 +35,10 @@ To import a Graph is required that:
 
 #### Project structure
 
-assets folder has the Graph fish image<br>
-conf folder has the configuration files required to connect an Gremlin server and execute stuff<br>
-libs folder has the required libs to execute export from PostgreSQL and import the Graph<br>
-src folder java class files<br>
+*assets folder* has the Graph fish image<br>
+*conf folder* has the configuration files required to connect an Gremlin server and execute stuff<br>
+*libs folder* has the required libs to execute export from PostgreSQL and import the Graph<br>
+*src folder* java class files<br>
 
 
 
