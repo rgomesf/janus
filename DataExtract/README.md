@@ -29,7 +29,7 @@ Using advanced mode write this in the text area:
 #### Pre-requisites
 
 To import a Graph is required that:
-* the [janusgraph docker image](https://github.com/rgomesf/janus/tree/master/janusgraph) is up and running
+* the [janusgraph docker image](https://github.com/rgomesf/janus) is up and running
 * the [postgresql docker image](https://github.com/rgomesf/janus/tree/master/postgresqldata) is up and running
 
 
