@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.Optional;
 
@@ -32,6 +33,8 @@ import org.janusgraph.core.PropertyKey;
 import org.janusgraph.core.schema.ConsistencyModifier;
 import org.janusgraph.core.schema.JanusGraphIndex;
 import org.janusgraph.core.schema.JanusGraphManagement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import enei.data.extract.db.ConnectionManager;
 
@@ -58,6 +61,8 @@ public class ExtractData {
 	private static final String	BNUMBER			= "bnumber";
 	private static final String	ANUMBER			= "anumber";
 
+	private static final Logger	logger			= LoggerFactory.getLogger(ExtractData.class);
+
 
 
 
@@ -78,7 +83,7 @@ public class ExtractData {
 			// sbVert.append(graphName + " = JanusGraphFactory.open(\"inmemory\")");
 			// sbVert.append("\n");
 			JanusGraphManagement management = graph.openManagement();
-			System.out.println("Creating Indexes...");
+			logger.info("Creating Indexes...");
 			final PropertyKey entityid = management.makePropertyKey(ENTITYID).dataType(String.class).make();
 			final PropertyKey anumberk = management.makePropertyKey(ANUMBER).dataType(String.class).make();
 			final PropertyKey bnumberk = management.makePropertyKey(BNUMBER).dataType(String.class).make();
@@ -106,11 +111,10 @@ public class ExtractData {
 			management.setConsistency(imeiIndex, ConsistencyModifier.LOCK);
 
 			management.commit();
-			System.out.println("Waiting for index being registered...");
+			logger.info("Waiting for index being registered...");
 			ResultSet rs = pStm.executeQuery();
-			System.out.println("--------------------------");
-			System.out.println("--- Adding vertices... ---");
-			System.out.println("--------------------------");
+
+			logger.info(MessageFormat.format("\n{0}\n{1}\n{2}", "--------------------------", "--- Adding vertices... ---", "--------------------------"));
 			long s = System.currentTimeMillis();
 
 			JanusGraphTransaction tx = graph.newTransaction();
@@ -118,7 +122,7 @@ public class ExtractData {
 			long count = 0;
 			int fileNum = 1;
 			while (rs.next()) {
-				System.out.println("**********************************");
+				logger.info("**********************************");
 				String anumber = rs.getString("A_NUMBER");
 				String bnumber = rs.getString("B_NUMBER");
 				String entityID = rs.getString("ENTITY_ID");
@@ -153,11 +157,11 @@ public class ExtractData {
 				Vertex vrtCell = null;
 				Optional<Vertex> optVrtxCell = gtCell.tryNext();
 				if (!optVrtxCell.isPresent()) {
-					System.out.println("Adding Cell Vertex:");
-					System.out.println("Entity: " + entityID);
-					System.out.println("ANumber: " + anumber);
-					System.out.println("BNumber: " + bnumber);
-					System.out.println("Cell: " + cellID);
+					logger.info("Adding Cell Vertex:");
+					logger.info("Entity: " + entityID);
+					logger.info("ANumber: " + anumber);
+					logger.info("BNumber: " + bnumber);
+					logger.info("Cell: " + cellID);
 					vrtCell = tx.addVertex(T.label, "cell", "type", "cell", CELL_ID, cellID);
 
 					sbVert.append("vrtCell = " + graphName + ".addVertex(T.label, \"cell\",");
@@ -165,7 +169,7 @@ public class ExtractData {
 					sbVert.append("\"" + CELL_ID + "\",\"" + cellID + "\")");
 					sbVert.append("\n");
 				} else {
-					System.out.println("Cell " + cellID + " already exists. With entity " + entityID);
+					logger.info("Cell " + cellID + " already exists. For entity " + entityID);
 					vrtCell = optVrtxCell.get();
 					sbVert.append("vrtCell = " + graphName + ".traversal().V().has(\"type\", \"cell\").has(\"" + CELL_ID + "\",\"" + cellID + "\").next()");
 					sbVert.append("\n");
@@ -180,11 +184,11 @@ public class ExtractData {
 				Vertex vrtIMEI = null;
 				Optional<Vertex> optVrtxIMEI = gtIMEI.tryNext();
 				if (!optVrtxIMEI.isPresent()) {
-					System.out.println("Adding IMEI Vertex:");
-					System.out.println("Entity: " + entityID);
-					System.out.println("ANumber: " + anumber);
-					System.out.println("BNumber: " + bnumber);
-					System.out.println("IMEI: " + imei);
+					logger.info("Adding IMEI Vertex:");
+					logger.info("Entity: " + entityID);
+					logger.info("ANumber: " + anumber);
+					logger.info("BNumber: " + bnumber);
+					logger.info("IMEI: " + imei);
 					vrtIMEI = tx.addVertex(T.label, "imei", "type", "imei", IMEI, imei);
 
 					sbVert.append("vrtIMEI = " + graphName + ".addVertex(T.label, \"imei\",");
@@ -192,7 +196,7 @@ public class ExtractData {
 					sbVert.append("\"" + IMEI + "\",\"" + imei + "\")");
 					sbVert.append("\n");
 				} else {
-					System.out.println("IMEI " + imei + " already exists. For entity " + entityID);
+					logger.info("IMEI " + imei + " already exists. For entity " + entityID);
 					vrtIMEI = optVrtxIMEI.get();
 					sbVert.append("vrtIMEI = " + graphName + ".traversal().V().has(\"type\", \"imei\").has(\"" + IMEI + "\",\"" + imei + "\").next()");
 					sbVert.append("\n");
@@ -212,30 +216,29 @@ public class ExtractData {
 					fileNum++;
 				}
 			}
-			System.out.println("Rows " + count + " read from Database.");
+			logger.info("Rows read from Database: " + count);
 			long e = System.currentTimeMillis();
-			System.out.println("Created vertices in " + (e - s) + "ms.");
-			System.out.println("--------------------------");
-			System.out.println("- Adding Edges(calls)... -");
-			System.out.println("--------------------------");
+			logger.info("Created vertices in " + (e - s) + "ms.");
+			logger.info(MessageFormat.format("\n{0}\n{1}\n{2}", "--------------------------", "--- Adding Edges(calls)... ---", "--------------------------"));
+
 			rs.beforeFirst();
 			s = System.currentTimeMillis();
 			// reset file generator params
 			count = 0;
 			fileNum = 1;
 			while (rs.next()) {
-				System.out.println("*************************");
+				logger.info("*************************");
 				String anumber = rs.getString("A_NUMBER");
 				String bnumber = rs.getString("B_NUMBER");
 				String entityID = rs.getString("ENTITY_ID");
 				String eventDirection = rs.getString("EVENT_DIRECTION");
 				Date evntStartDate = new Date(rs.getTimestamp("EVENT_START_DATE").getTime());
 
-				System.out.println("Reading Entity: " + entityID);
-				System.out.println("ANumber: " + anumber);
-				System.out.println("BNumber: " + bnumber);
-				System.out.println("Direction: " + eventDirection);
-				System.out.println("EvtStartDate: " + evntStartDate.toString());
+				logger.info("Reading Entity: " + entityID);
+				logger.info("ANumber: " + anumber);
+				logger.info("BNumber: " + bnumber);
+				logger.info("Direction: " + eventDirection);
+				logger.info("EvtStartDate: " + evntStartDate.toString());
 				Vertex entityVertex = tx.traversal().V().has(ANUMBER, anumber).has(BNUMBER, bnumber).has(ENTITYID, entityID).has(EVT_START_DATE, evntStartDate).next();
 				sbEdges.append("entityVertex = " + graphName + ".traversal().V().has(\"" + ANUMBER + "\",\"" + anumber + "\").has(\"" + BNUMBER + "\",\"" + bnumber + "\").has(\"" + ENTITYID + "\",\""
 						+ entityID + "\").has(\"" + EVT_START_DATE + "\",\"" + evntStartDate + "\").next()");
@@ -246,14 +249,14 @@ public class ExtractData {
 					if (optInVertex.isPresent()) {
 						Vertex inVertex = optInVertex.get();
 						entityVertex.addEdge("calls", inVertex);
-						System.out.println(entityVertex.property(ENTITYID).value() + "->" + inVertex.property(ANUMBER).value());
+						logger.info(entityVertex.property(ENTITYID).value() + "->" + inVertex.property(ANUMBER).value());
 						sbEdges.append("inVertex = " + graphName + ".traversal().V().has(\"" + ENTITYID + "\", entityVertex.property(\"" + ANUMBER + "\").value()).has(\"" + EVENT_DIRECTION
 								+ "\", \"OUT\").has(\"" + EVT_START_DATE + "\",\"" + evntStartDate + "\").next()");
 						sbEdges.append("\n");
 						sbEdges.append("entityVertex.addEdge(\"calls\",inVertex)");
 						sbEdges.append("\n");
 					} else {
-						System.out.println("Entity " + entityVertex.property(ANUMBER).value() + " with OUT direction, not found!");
+						logger.info("Entity " + entityVertex.property(ANUMBER).value() + " with OUT direction, not found!");
 					}
 				} else {
 					if ("OUT".equals(eventDirection)) {
@@ -262,17 +265,17 @@ public class ExtractData {
 						if (optOutVertex.isPresent()) {
 							Vertex outVertex = optOutVertex.get();
 							outVertex.addEdge("calls", entityVertex);
-							System.out.println(outVertex.property(ENTITYID).value() + "->" + entityVertex.property(BNUMBER).value());
+							logger.info(outVertex.property(ENTITYID).value() + "->" + entityVertex.property(BNUMBER).value());
 							sbEdges.append("outVertex = " + graphName + ".traversal().V().has(\"" + ENTITYID + "\", entityVertex.property(\"" + BNUMBER + "\").value()).has(\"" + EVENT_DIRECTION
 									+ "\", \"IN\").has(\"" + EVT_START_DATE + "\",\"" + evntStartDate + "\").next()");
 							sbEdges.append("\n");
 							sbEdges.append("outVertex.addEdge(\"calls\", entityVertex)");
 							sbEdges.append("\n");
 						} else {
-							System.out.println("Entity " + entityVertex.property(BNUMBER).value() + " with IN direction, not found!");
+							logger.info("Entity " + entityVertex.property(BNUMBER).value() + " with IN direction, not found!");
 						}
 					} else {
-						System.out.println("No Direction defined!");
+						logger.info("No Direction defined!");
 					}
 				}
 
@@ -289,13 +292,13 @@ public class ExtractData {
 
 			}
 			e = System.currentTimeMillis();
-			System.out.println("Created Edges in " + (e - s) + "ms");
+			logger.info("Created Edges in " + (e - s) + "ms");
 			tx.commit();
-			System.out.println("writing graph to disk");
+			logger.info("writing graph to disk");
 			s = System.currentTimeMillis();
 			GraphMLWriter.build().create().writeGraph(new FileOutputStream("events.graphml"), graph);
 			e = System.currentTimeMillis();
-			System.out.println("Graph written to 'events.graphml'.");
+			logger.info("Graph written to 'events.graphml'.");
 
 			// commit changes
 			sbVert.append(graphName + ".tx().commit();[]");
@@ -307,8 +310,7 @@ public class ExtractData {
 			Files.write(Paths.get("edges" + fileNum + ".graph"), sbEdges.toString().getBytes());
 			// write edges
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Cant read data from database because, " + e.getMessage(), e);
 		}
 
 	}
@@ -327,7 +329,7 @@ public class ExtractData {
 			client.submit(commandSubmit);
 
 			client.close();
-			System.out.println("Created graph in remote gremlin server.");
+			logger.info("Created graph in remote gremlin server.");
 		} finally {
 			if (cluster != null) {
 				cluster.close();
@@ -354,40 +356,44 @@ public class ExtractData {
 					writeGraph();
 					break;
 				case "writeremote":
+					logger.info("Creating first file of vertices");
 					StringBuffer sb = new StringBuffer();
 					sb.append(new String(Files.readAllBytes(Paths.get("vertices1.graph"))));
 					connectGremlinServer(sb.toString());
 
-					System.out.println("Creating second file of vertices");
+					logger.info("Creating second file of vertices");
 					sb = new StringBuffer();
 					sb.append(new String(Files.readAllBytes(Paths.get("vertices2.graph"))));
 					connectGremlinServer(sb.toString());
 
+					logger.info("Creating first file of edges");
 					sb = new StringBuffer();
 					sb.append(new String(Files.readAllBytes(Paths.get("edges1.graph"))));
 					connectGremlinServer(sb.toString());
 
+					logger.info("Creating second file of edges");
 					sb = new StringBuffer();
 					sb.append(new String(Files.readAllBytes(Paths.get("edges2.graph"))));
 					connectGremlinServer(sb.toString());
 					break;
 				case "both":
 					writeGraph();
+					logger.info("Creating first file of vertices");
 					sb = new StringBuffer();
 					sb.append(new String(Files.readAllBytes(Paths.get("vertices1.graph"))));
 					connectGremlinServer(sb.toString());
 
-					System.out.println("Creating second file of vertices");
+					logger.info("Creating second file of vertices");
 					sb = new StringBuffer();
 					sb.append(new String(Files.readAllBytes(Paths.get("vertices2.graph"))));
 					connectGremlinServer(sb.toString());
 
-					System.out.println("Creating first file of edges");
+					logger.info("Creating first file of edges");
 					sb = new StringBuffer();
 					sb.append(new String(Files.readAllBytes(Paths.get("edges1.graph"))));
 					connectGremlinServer(sb.toString());
 
-					System.out.println("Creating second file of edges");
+					logger.info("Creating second file of edges");
 					sb = new StringBuffer();
 					sb.append(new String(Files.readAllBytes(Paths.get("edges2.graph"))));
 					connectGremlinServer(sb.toString());
