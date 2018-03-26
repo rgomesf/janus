@@ -18,14 +18,14 @@ After writing graph in Gremlin Server + JanusGraph it will be something very sim
 ![alt text](https://github.com/rgomesf/janus/blob/master/DataExtract/assets/graphfish.png "Graph fish")
 
 
-##### Pre-requisites
+#### Pre-requisites
 
 To import a Graph is required that:
 * the [janusgraph docker image](https://github.com/rgomesf/janus/tree/master/janusgraph) is up and running
 * the [postgresql docker image](https://github.com/rgomesf/janus/tree/master/postgresqldata) is up and running
 
 
-##### Project structure
+#### Project structure
 
 assets folder has the Graph fish image
 conf folder has the configuration files required to connect an Gremlin server and execute stuff.
